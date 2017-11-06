@@ -4,7 +4,7 @@ mybatis中，快捷查看对应sql的小插件
 ### 适用范围
 #### 文件起名相对统一及dao与service中方法名一致的web项目：
 #### 如  xxxDao*.java、xxxService*.java、xxxDao*.xml、xxxMapper*.xml
- ` UserDao.java
+UserDao.java
     
     public interface UserDao {
     
@@ -13,9 +13,9 @@ mybatis中，快捷查看对应sql的小插件
         int countUser(UserVo userVo);
     }
     
- `
+ 
 
-` UserService.java
+UserService.java
    
     public class UserService {
    
@@ -31,4 +31,4 @@ mybatis中，快捷查看对应sql的小插件
        }
     }
  
-`
+
