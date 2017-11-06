@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.your.company.unique.plugin.id</id>
   <name>mybatisToMapper</name>
-  <version>1.1</version>
+  <version>1.2</version>
   <vendor email="18560023390@163.com" url="https://github.com/kongxiangzhen/toMapper">KongXiangzhen</vendor>
 
   <description><![CDATA[
@@ -10,7 +10,8 @@
 
   <change-notes><![CDATA[
 
-      <em>增加正则表达式匹配文件</em>
+      <em>1.增加正则表达式匹配文件
+      2.增加未找到方法时冒泡提示</em>
     ]]>
   </change-notes>
 

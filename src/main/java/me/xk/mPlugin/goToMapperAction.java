@@ -3,6 +3,7 @@ package me.xk.mPlugin;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.LogicalPosition;
@@ -10,13 +11,18 @@ import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.Balloon;
+import com.intellij.openapi.ui.popup.BalloonBuilder;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.psi.xml.XmlFile;
+import com.intellij.ui.JBColor;
 
+import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,6 +91,20 @@ public class goToMapperAction extends AnAction {
             //这里判断比较简单，不严谨。可以通过XmlFile遍历节点判断是否存在
             if (StringUtil.isNotEmpty(xml) && xml.contains("id=\"" + methodName + "\"")) {
                 toMapper(project, methodName, files[0].getVirtualFile(), xml);
+            } else {
+                ApplicationManager.getApplication().invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        JBPopupFactory factory = JBPopupFactory.getInstance();
+
+                      BalloonBuilder builder= factory.createHtmlTextBalloonBuilder("no such method!", null, new JBColor(new Color(39, 49, 39),new Color(39, 64, 39)),null);
+
+                      builder.setFadeoutTime(5000) // 未操作5秒后消失
+                              .createBalloon() //创建冒泡
+                              .show(factory.guessBestPopupLocation(e.getData(PlatformDataKeys.EDITOR)), Balloon.Position.below); //显示在文字下方
+                    }
+                });
+
             }
         }
     }
