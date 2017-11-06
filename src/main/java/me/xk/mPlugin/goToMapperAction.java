@@ -1,3 +1,5 @@
+package me.xk.mPlugin;
+
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -14,6 +16,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.psi.xml.XmlFile;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by kong on 2017-11-2
@@ -36,11 +41,17 @@ public class goToMapperAction extends AnAction {
         PsiFile containingFile = psiElementParent.getContainingFile();//获取到文件，这里是java类
         String className = containingFile.getName();//获取到类名
 
+        // 正则表达式规则
+        String regEx = "^[a-zA-Z_]{1,}[0-9]{0,}[Service Dao][a-zA-Z_]{0,}[0-9]{0,}.*";
+        // 编译正则表达式
+        Pattern pattern = Pattern.compile(regEx);
+        // 忽略大小写的写法
+        // Pattern pat = Pattern.compile(regEx, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(className);
+
         String mapperName;
-        if (className.endsWith("Service.java")) {
-            mapperName = className.replace("Service.java", "Dao.xml");
-        } else if (className.endsWith("Dao.java")) {
-            mapperName = className.replace(".java", ".xml");
+        if (matcher.find()) {
+            mapperName = matcher.group().replace("Service", "Dao").replace(".java", ".xml");
         } else {
             return;
         }
@@ -48,6 +59,25 @@ public class goToMapperAction extends AnAction {
         Project project = e.getProject();
         //查找名称为mapperName的文件
         PsiFile[] files = PsiShortNamesCache.getInstance(project).getFilesByName(mapperName);
+        if (files.length == 0) {
+            if (matcher.group().contains("Service")) {
+                PsiFile[] psiFile = PsiShortNamesCache.getInstance(project).getFilesByName(matcher.group().replace("Service", "Mapper").replace(".java", ".xml"));
+                XmlFile xmlFile = (XmlFile) psiFile[0];
+                String xml = xmlFile.getDocument().getText();
+                if (StringUtil.isNotEmpty(xml) && xml.contains("id=\"" + methodName + "\"")) {
+                    toMapper(project, methodName, psiFile[0].getVirtualFile(), xml);
+                }
+            }
+            if (matcher.group().contains("Dao")) {
+                PsiFile[] psiFile = PsiShortNamesCache.getInstance(project).getFilesByName(matcher.group().replace("Dao", "Mapper").replace(".java", ".xml"));
+                XmlFile xmlFile = (XmlFile) psiFile[0];
+                String xml = xmlFile.getDocument().getText();
+                if (StringUtil.isNotEmpty(xml) && xml.contains("id=\"" + methodName + "\"")) {
+                    toMapper(project, methodName, psiFile[0].getVirtualFile(), xml);
+                }
+            }
+
+        }
         if (files.length == 1) {
             XmlFile xmlFile = (XmlFile) files[0];
             String xml = xmlFile.getDocument().getText();//获取mapper xml字符串
